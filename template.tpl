@@ -102,6 +102,52 @@ ___TEMPLATE_PARAMETERS___
     ],
     "alwaysInSummary": true,
     "help": "List the IP addresses or address patterns that should be excluded"
+  },
+  {
+    "type": "GROUP",
+    "name": "returnValue",
+    "displayName": "Return values",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "SELECT",
+        "name": "ipMatch",
+        "displayName": "Return when IP address matches",
+        "macrosInSelect": true,
+        "selectItems": [
+          {
+            "value": true,
+            "displayValue": "True"
+          },
+          {
+            "value": "internal",
+            "displayValue": "Internal"
+          }
+        ],
+        "simpleValueType": true
+      },
+      {
+        "type": "SELECT",
+        "name": "ipNoMatch",
+        "displayName": "Return when IP address does not match",
+        "macrosInSelect": true,
+        "selectItems": [
+          {
+            "value": false,
+            "displayValue": "False"
+          },
+          {
+            "value": "external",
+            "displayValue": "External"
+          },
+          {
+            "value": "undef",
+            "displayValue": "Undefined"
+          }
+        ],
+        "simpleValueType": true
+      }
+    ]
   }
 ]
 
@@ -165,12 +211,14 @@ if (requestIp) {
     for (let i = 0; i < excludedIPs.length; i++) {
       const obj = excludedIPs[i];
       if (ipMatch(obj.matchType, obj.value, requestIp) === true) {
-        return true;
+        return data.ipMatch;
       }
     }
   }
   
-  return false;
+  // GTM does not allow the dropdown value to be set to "undefined" so we used
+  // this helper value instead.
+  return (data.ipNoMatch === "undef") ? undefined : data.ipNoMatch;
 }
 
 return;
@@ -304,7 +352,7 @@ scenarios:
     };
 
     mock('getRemoteAddress', (key) => {
-      return '80.123.62.123';
+      return '194.49.74.190';
     });
 
     // Call runCode to run the template's code.
@@ -473,6 +521,6 @@ setup: const log = require('logToConsole');
 
 ___NOTES___
 
-Created on 3/7/2022, 3:39:26 PM
+Created on 9/8/2022, 9:47:26 AM
 
 
